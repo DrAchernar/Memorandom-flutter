@@ -1,6 +1,22 @@
 # memorandom
 
-Flutter Memory Practice app
+Flutter Memory Practice app has
+
+- Sudoku 
+- Colors & Words 
+- MemoryBox
+
+parts. 
+
+I captured this example on simulator. You can look screenshot folder or watch [this](https://youtu.be/kiSPPoItUBo)
+ 
+## For Sudoku Service 
+
+I use  for sudoku service [this](https://agarithm.com/sudoku/) . Its an example for usage.
+Important: You need to create your own sudoku service or buy from providers.
+
+You can change and try different ideas on it. Good luck...
+
 
 ## Getting Started
 
