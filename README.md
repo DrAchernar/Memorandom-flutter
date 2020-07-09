@@ -1,6 +1,6 @@
 # memorandom
 
-Flutter Memory Practice app has
+Flutter Memory Practice game has
 
 - Sudoku 
 - Colors & Words 
