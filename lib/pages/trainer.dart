@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
-import 'package:memorandom/pages/settings.dart';
+import 'package:memorandom/pages/info.dart';
 import 'package:memorandom/practices/sudoku/sudoku.dart';
 import 'package:memorandom/practices/memorybox/memorybox.dart';
 import 'package:memorandom/practices/words/words.dart';
+import 'package:memorandom/practices/memorybox/memorybox_howtoplay.dart';
+import 'package:memorandom/practices/sudoku/sudoku_howtoplay.dart';
+import 'package:memorandom/practices/words/words_howtoplay.dart';
 
 class Trainer extends StatefulWidget {
   @override
@@ -17,14 +20,14 @@ class _TrainerState extends State<Trainer> {
       appBar: GradientAppBar(
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.info),
               onPressed: () {
                 showDialog(
                     context: context,
-                    builder: (BuildContext context) => Settings());
+                    builder: (BuildContext context) => Info());
               })
         ],
-        title: Text('Memorandom'),
+        title: Text('Memoraks'),
         automaticallyImplyLeading: false,
         gradient: LinearGradient(
             colors: [Colors.blue[300], Colors.green[200]],
@@ -67,11 +70,14 @@ class _TrainerState extends State<Trainer> {
                       children: <Widget>[
                         FlatButton(
                           child: const Text(
-                            'Learn to Play',
+                            'How to Play',
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {
-                            /* ... */
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    Sudoku_Info());
                           },
                         ),
                         FlatButton(
@@ -116,11 +122,14 @@ class _TrainerState extends State<Trainer> {
                         children: <Widget>[
                           FlatButton(
                             child: const Text(
-                              'Learn to Play',
+                              'How to Play',
                               style: TextStyle(color: Colors.white),
                             ),
                             onPressed: () {
-                              /* ... */
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      Words_Info());
                             },
                           ),
                           FlatButton(
@@ -133,7 +142,9 @@ class _TrainerState extends State<Trainer> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ColorsAndWords(started: false,)),
+                                    builder: (context) => ColorsAndWords(
+                                          started: false,
+                                        )),
                               );
                             },
                           ),
@@ -167,11 +178,14 @@ class _TrainerState extends State<Trainer> {
                         children: <Widget>[
                           FlatButton(
                             child: const Text(
-                              'Learn to Play',
+                              'How to Play',
                               style: TextStyle(color: Colors.white),
                             ),
                             onPressed: () {
-                              /* ... */
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      MemoryBox_Info());
                             },
                           ),
                           FlatButton(
@@ -184,7 +198,9 @@ class _TrainerState extends State<Trainer> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => MemoryBox(started: false,)),
+                                    builder: (context) => MemoryBox(
+                                          started: false,
+                                        )),
                               );
                             },
                           ),

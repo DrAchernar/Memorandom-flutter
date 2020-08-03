@@ -18,6 +18,11 @@ class _MemoryBoxState extends State<MemoryBox> with TickerProviderStateMixin {
   var boxColor = new List(80);
   final random = new Random();
   Timer timerColorize;
+  bool backEnable = true;
+
+  Future goBackDelay() async {
+    await Future.delayed(Duration(seconds: 3));
+  }
 
   void colorizeBox() {
     for (int i = 0; i < 80; i++) {
@@ -56,11 +61,13 @@ class _MemoryBoxState extends State<MemoryBox> with TickerProviderStateMixin {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text('Memorandom'),
+        title: Text('Memoraks'),
         leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              Navigator.of(context).pop();
+              if (backEnable) {
+                Navigator.of(context).pop();
+              }
             }),
         automaticallyImplyLeading: false,
         gradient: LinearGradient(
@@ -68,21 +75,24 @@ class _MemoryBoxState extends State<MemoryBox> with TickerProviderStateMixin {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter),
         actions: <Widget>[
-          widget.started ?
-          FlatButton(
-            child: Text(
-              'Restart',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (BuildContext context) {
-                    return MemoryBox(
-                      started: true,
-                    );
-                  }));
-            },
-          ) : SizedBox(),
+          widget.started
+              ? FlatButton(
+                  child: Text(
+                    'Restart',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  onPressed: () {
+                    if (backEnable) {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (BuildContext context) {
+                        return MemoryBox(
+                          started: true,
+                        );
+                      }));
+                    }
+                  },
+                )
+              : SizedBox(),
         ],
       ),
       body: Container(
@@ -91,67 +101,71 @@ class _MemoryBoxState extends State<MemoryBox> with TickerProviderStateMixin {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [Colors.green[200], Colors.blue])),
-          child: widget.started ? MemoryBoxWidget() : Stack(
-            children: <Widget>[
-              Positioned(
-                top: height / 73,
-                width: width,
-                child: Text(
-                  'MEMORY BOX',
-                  style: TextStyle(fontSize: 30, color: Colors.white30),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Positioned(
-                top: height / 10,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height - 50,
-                child: Container(
-                  child: GridView.count(
-                    // Create a grid with 2 columns. If you change the scrollDirection to
-                    // horizontal, this produces 2 rows.
-                    crossAxisCount: 8,
-                    // Generate 100 widgets that display their index in the List.
-                    children: List.generate(80, (index) {
-                      return GestureDetector(
-                        onTap: () {
-                          print(index);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1),
-                              color: boxColor[index]),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: Center(
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(75),
-                        side: BorderSide(color: Colors.white),
-                      ),
-                      textColor: Colors.blue,
-                      color: Colors.green[100],
-                      padding: const EdgeInsets.all(30.0),
+          child: widget.started
+              ? MemoryBoxWidget()
+              : Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: height / 73,
+                      width: width,
                       child: Text(
-                        'GO!',
-                        style: TextStyle(
-                            fontSize: 26, fontWeight: FontWeight.bold),
+                        'MEMORY BOX',
+                        style: TextStyle(fontSize: 20, color: Colors.white30),
+                        textAlign: TextAlign.center,
                       ),
-                      onPressed: () {
-                        timerColorize.cancel();
-                        setState(() {
-                          widget.started = true;
-                        });
-                      },
-                    )),
-              ),
-            ],
-          )),
+                    ),
+                    Positioned(
+                      top: height / 10,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height - 50,
+                      child: Container(
+                        child: GridView.count(
+                          // Create a grid with 2 columns. If you change the scrollDirection to
+                          // horizontal, this produces 2 rows.
+                          crossAxisCount: 8,
+                          // Generate 100 widgets that display their index in the List.
+                          children: List.generate(80, (index) {
+                            return GestureDetector(
+                              onTap: () {},
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(1),
+                                    color: boxColor[index]),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Center(
+                          child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(75),
+                          side: BorderSide(color: Colors.white),
+                        ),
+                        textColor: Colors.blue,
+                        color: Colors.green[100],
+                        padding: const EdgeInsets.all(30.0),
+                        child: Text(
+                          'GO!',
+                          style: TextStyle(
+                              fontSize: 26, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          backEnable = false;
+                          goBackDelay().then((_) {
+                            backEnable = true;
+                          });
+                          timerColorize.cancel();
+                          setState(() {
+                            widget.started = true;
+                          });
+                        },
+                      )),
+                    ),
+                  ],
+                )),
     );
   }
 }

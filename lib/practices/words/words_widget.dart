@@ -130,8 +130,7 @@ class _WorldsWidgetState extends State<WorldsWidget>
                 children: <Widget>[
                   Text(
                     'COLORS AND WORDS',
-                    style:
-                    TextStyle(fontSize: 30, color: Colors.white30),
+                    style: TextStyle(fontSize: 30, color: Colors.white30),
                     textAlign: TextAlign.center,
                   ),
                   Container(
@@ -206,15 +205,17 @@ class _WorldsWidgetState extends State<WorldsWidget>
                                   vertical: 10, horizontal: 40),
                               color: Colors.blueGrey[50],
                               onPressed: () {
-                                if (colors.indexOf(textColor) ==
-                                    words.indexOf(text)) {
-                                  setState(() {
-                                    lastScore = lastScore +
-                                        (10 / (passingTime + 1)).truncate();
-                                  });
-                                  passingTime = 0;
+                                if (timerCountdown.isActive) {
+                                  if (colors.indexOf(textColor) ==
+                                      words.indexOf(text)) {
+                                    setState(() {
+                                      lastScore = lastScore +
+                                          (10 / (passingTime + 1)).truncate();
+                                    });
+                                    passingTime = 0;
+                                  }
+                                  generateColoredWord();
                                 }
-                                generateColoredWord();
                               },
                             ),
                             RaisedButton(
@@ -227,15 +228,17 @@ class _WorldsWidgetState extends State<WorldsWidget>
                                   vertical: 10, horizontal: 40),
                               color: Colors.blueGrey[50],
                               onPressed: () {
-                                if (colors.indexOf(textColor) !=
-                                    words.indexOf(text)) {
-                                  setState(() {
-                                    lastScore = lastScore +
-                                        (10 / (passingTime + 1)).truncate();
-                                  });
-                                  passingTime = 0;
+                                if (timerCountdown.isActive) {
+                                  if (colors.indexOf(textColor) !=
+                                      words.indexOf(text)) {
+                                    setState(() {
+                                      lastScore = lastScore +
+                                          (10 / (passingTime + 1)).truncate();
+                                    });
+                                    passingTime = 0;
+                                  }
+                                  generateColoredWord();
                                 }
-                                generateColoredWord();
                               },
                             ),
                           ],

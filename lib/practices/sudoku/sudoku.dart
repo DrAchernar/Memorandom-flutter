@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:http/http.dart' as http;
+import 'package:memorandom/pages/trainer.dart';
 
 class Sudoku extends StatefulWidget {
   @override
@@ -12,6 +16,7 @@ class _SudokuState extends State<Sudoku> {
   bool cleanable = false;
   var board, solve;
   String checkBoard;
+  bool isLoading = true;
   var boardCell = new List.generate(9, (_) => new List(9));
   var tapColor = new List.generate(9, (_) => new List(9));
   List<dynamic> disabledCell = new List();
@@ -37,36 +42,76 @@ class _SudokuState extends State<Sudoku> {
     super.dispose();
   }
 
+  errorDialog() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Connection problem!'),
+                Text('Check your internet connection.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Trainer()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void getBoard() async {
     disabledCell.clear();
     enableNums = [];
+    var responseBoard, responseSolver;
     if (pRow != null) tapColor[pRow][pCol] = Colors.grey[100];
-    var responseBoard = await http.get("https://agarithm.com/sudoku/new");
-    var responseSolver;
-    if (responseBoard.statusCode == 200 && this.mounted) {
-      board = responseBoard.body;
-      responseSolver =
-          await http.get("https://agarithm.com/sudoku/solve/$board");
-      if (responseSolver.statusCode == 200) {
-        solve = responseSolver.body;
-        print(solve);
-      } else {
-        print('Connection problem on solver: ${responseSolver.statusCode}');
-      }
-      for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-          setState(() {
-            if (board[i * 9 + j] == '.') {
-              boardCell[i][j] = '';
-            } else {
-              disabledCell.add(i * 9 + j);
-              boardCell[i][j] = (board[i * 9 + j]).toString();
-            }
-          });
+    try {
+      responseBoard = await http
+          .get("https://agarithm.com/sudoku/new")
+          .timeout(Duration(seconds: 7));
+      if (responseBoard.statusCode == 200 && this.mounted) {
+        board = responseBoard.body;
+        responseSolver =
+            await http.get("https://agarithm.com/sudoku/solve/$board");
+        if (responseSolver.statusCode == 200) {
+          solve = responseSolver.body;
         }
+        for (int i = 0; i < 9; i++) {
+          for (int j = 0; j < 9; j++) {
+            setState(() {
+              if (board[i * 9 + j] == '.') {
+                boardCell[i][j] = '';
+              } else {
+                disabledCell.add(i * 9 + j);
+                boardCell[i][j] = (board[i * 9 + j]).toString();
+              }
+            });
+          }
+        }
+        setState(() {
+          isLoading = false;
+        });
       }
-    } else {
-      print('Connection problem on board: ${responseBoard.statusCode}');
+    } on TimeoutException catch (e) {
+      errorDialog();
+    } on SocketException catch (e) {
+      errorDialog();
+    } on Error catch (e) {
+      errorDialog();
     }
   }
 
@@ -162,11 +207,19 @@ class _SudokuState extends State<Sudoku> {
     //print('height : $height --- width : $width');
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text('Memorandom'),
+        title: Text('Memoraks'),
         gradient: LinearGradient(
             colors: [Colors.blue[300], Colors.green[200]],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              if (!isLoading) {
+                Navigator.of(context).pop();
+              }
+            }),
+        automaticallyImplyLeading: false,
         actions: <Widget>[
           FlatButton(
             child: Text(
@@ -174,6 +227,9 @@ class _SudokuState extends State<Sudoku> {
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             onPressed: () {
+              setState(() {
+                isLoading = true;
+              });
               getBoard();
             },
           ),
@@ -192,8 +248,7 @@ class _SudokuState extends State<Sudoku> {
               width: MediaQuery.of(context).size.width,
               child: Text(
                 'SUDOKU',
-                style:
-                TextStyle(fontSize: 30, color: Colors.white30),
+                style: TextStyle(fontSize: 20, color: Colors.white30),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -228,174 +283,190 @@ class _SudokuState extends State<Sudoku> {
                     'Available numbers',
                     style: TextStyle(color: Colors.black38),
                   ),
-                  SizedBox(
-                      height: height / 7,
-                      child: new ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: enableNums.length,
-                          itemBuilder: (BuildContext context, int Index) {
-                            return new Container(
-                              alignment: Alignment.topCenter,
-                              height: height / 18,
-                              width: width / 10,
-                              margin:
-                                  EdgeInsets.only(top: 5, left: 5, bottom: 20),
-                              child: FlatButton(
-                                onPressed: () {
-                                  insertToCell(enableNums[Index], pRow, pCol);
-                                },
-                                child: Text(
-                                  enableNums[Index],
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                color: Colors.white,
-                                highlightColor: Colors.indigo,
-                              ),
-                            );
-                          })),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      new RaisedButton.icon(
-                        padding: const EdgeInsets.all(8.0),
-                        textColor: Colors.white,
-                        color: Colors.lightGreen,
-                        onPressed: () {
-                          checkBoard = '';
-                          for (int i = 0; i < 9; i++) {
-                            for (int j = 0; j < 9; j++) {
-                              if (boardCell[i][j] == '') {
-                                boardCell[i][j] = '.';
-                              }
-                              checkBoard =
-                                  checkBoard + boardCell[i][j].toString();
-                            }
-                          }
-                          if (checkBoard == solve) {
-                            showDialog<void>(
-                              context: context,
-                              barrierDismissible: false,
-                              // user must tap button!
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Congratulations'),
-                                  content: SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        Text('You succeeded.'),
-                                        Text(
-                                            'You can start a new sudoku using New button or try other practices.'),
-                                      ],
+                  isLoading
+                      ? Container(
+                          height: height / 7,
+                          padding: EdgeInsets.all(20),
+                          child: Text(
+                            'Please wait! \n SUDOKU IS GENERATING...',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.white70,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      : SizedBox(
+                          height: height / 7,
+                          child: new ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: enableNums.length,
+                              itemBuilder: (BuildContext context, int Index) {
+                                return new Container(
+                                  alignment: Alignment.topCenter,
+                                  height: height / 18,
+                                  width: width / 10,
+                                  margin: EdgeInsets.only(
+                                      top: 5, left: 5, bottom: 20),
+                                  child: FlatButton(
+                                    onPressed: () {
+                                      insertToCell(
+                                          enableNums[Index], pRow, pCol);
+                                    },
+                                    child: Text(
+                                      enableNums[Index],
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
+                                    color: Colors.white,
+                                    highlightColor: Colors.indigo,
                                   ),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text('OK'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
                                 );
-                              },
-                            );
-                            print('Solved!!!');
-                          } else {
-                            showDialog<void>(
-                              context: context,
-                              barrierDismissible: false,
-                              // user must tap button!
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Cannot Solved!'),
-                                  content: SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        Text('Please check your sudoku...'),
-                                        Text('Clear and try again.'),
-                                      ],
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text('OK'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                            print('Check your sudoku... try again');
-                          }
-                        },
-                        icon: Icon(Icons.check_circle_outline),
-                        label: new Text("Solve! "),
-                      ),
-                      new RaisedButton.icon(
-                        onPressed: () {
-                          if (cleanable) {
-                            disabledCell.clear();
-                            enableNums = [];
-                            setState(() {
-                              for (int i = 0; i < 9; i++) {
-                                for (int j = 0; j < 9; j++) {
-                                  setState(() {
-                                    if (board[i * 9 + j] == '.') {
-                                      boardCell[i][j] = '';
-                                    } else {
-                                      disabledCell.add(i * 9 + j);
-                                      boardCell[i][j] =
-                                          (board[i * 9 + j]).toString();
+                              })),
+                  isLoading
+                      ? Container()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            new RaisedButton.icon(
+                              padding: const EdgeInsets.all(8.0),
+                              textColor: Colors.white,
+                              color: Colors.lightGreen,
+                              onPressed: () {
+                                checkBoard = '';
+                                for (int i = 0; i < 9; i++) {
+                                  for (int j = 0; j < 9; j++) {
+                                    if (boardCell[i][j] == '') {
+                                      boardCell[i][j] = '.';
                                     }
-                                  });
+                                    checkBoard =
+                                        checkBoard + boardCell[i][j].toString();
+                                  }
                                 }
-                              }
-                              cleanable = false;
-                            });
-                          } else {
-                            showDialog<void>(
-                              context: context,
-                              barrierDismissible: false,
-                              // user must tap button!
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Oops!'),
-                                  content: SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        Text('The board is already clear!'),
-                                        Text(''),
-                                      ],
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text('OK'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
+                                if (checkBoard == solve) {
+                                  showDialog<void>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    // user must tap button!
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Congratulations'),
+                                        content: SingleChildScrollView(
+                                          child: ListBody(
+                                            children: <Widget>[
+                                              Text('You succeeded.'),
+                                              Text(
+                                                  'You can start a new sudoku using New button or try other practices.'),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  showDialog<void>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    // user must tap button!
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Cannot Solved!'),
+                                        content: SingleChildScrollView(
+                                          child: ListBody(
+                                            children: <Widget>[
+                                              Text(
+                                                  'Please check your sudoku...'),
+                                              Text('Clear and try again.'),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
                               },
-                            );
-                          }
-                        },
-                        textColor: Colors.white,
-                        color: Colors.orangeAccent,
-                        padding: const EdgeInsets.all(8.0),
-                        icon: Icon(Icons.clear),
-                        label: new Text(
-                          "Clear ",
-                        ),
-                      ),
-                    ],
-                  )
+                              icon: Icon(Icons.check_circle_outline),
+                              label: new Text("Solve! "),
+                            ),
+                            new RaisedButton.icon(
+                              onPressed: () {
+                                if (cleanable) {
+                                  disabledCell.clear();
+                                  enableNums = [];
+                                  setState(() {
+                                    for (int i = 0; i < 9; i++) {
+                                      for (int j = 0; j < 9; j++) {
+                                        setState(() {
+                                          if (board[i * 9 + j] == '.') {
+                                            boardCell[i][j] = '';
+                                          } else {
+                                            disabledCell.add(i * 9 + j);
+                                            boardCell[i][j] =
+                                                (board[i * 9 + j]).toString();
+                                          }
+                                        });
+                                      }
+                                    }
+                                    cleanable = false;
+                                  });
+                                } else {
+                                  showDialog<void>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    // user must tap button!
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Oops!'),
+                                        content: SingleChildScrollView(
+                                          child: ListBody(
+                                            children: <Widget>[
+                                              Text(
+                                                  'The board is already clear!'),
+                                              Text(''),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                              textColor: Colors.white,
+                              color: Colors.orangeAccent,
+                              padding: const EdgeInsets.all(8.0),
+                              icon: Icon(Icons.clear),
+                              label: new Text(
+                                "Clear ",
+                              ),
+                            ),
+                          ],
+                        )
                 ],
               ),
             ),

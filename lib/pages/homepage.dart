@@ -42,7 +42,8 @@ class _HomePageState extends State<HomePage> {
         var end = Offset.zero;
         var curve = Curves.ease;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement build
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text('Memorandom'),
+        title: Text('Memoraks'),
         gradient: LinearGradient(
             colors: [Colors.blue[300], Colors.green[200]],
             begin: Alignment.topCenter,
@@ -90,35 +91,34 @@ class _HomePageState extends State<HomePage> {
                 end: Alignment.bottomRight,
                 colors: [Colors.green[200], Colors.blue])),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              AnimatedOpacity(
-                opacity: _visibleM1 ? 1.0 : 0.0,
-                duration: Duration(milliseconds: 1500),
-                child: Text(
-                  'Hello',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 38,
-                    color: Colors.grey[800],
-                  ),
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AnimatedOpacity(
+              opacity: _visibleM1 ? 1.0 : 0.0,
+              duration: Duration(milliseconds: 1500),
+              child: Text(
+                'Hello',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 38,
+                  color: Colors.grey[800],
                 ),
               ),
-              AnimatedOpacity(
-                opacity: _visibleM2 ? 1.0 : 0.0,
-                duration: Duration(milliseconds: 1500),
-                child: Text(
-                  'Welcome to Memorandom',
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.grey[300],
-                  ),
+            ),
+            AnimatedOpacity(
+              opacity: _visibleM2 ? 1.0 : 0.0,
+              duration: Duration(milliseconds: 1500),
+              child: Text(
+                'Welcome to Memoraks',
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.grey[300],
                 ),
               ),
-            ],
-          )
-        ),
+            ),
+          ],
+        )),
       ),
     );
   }

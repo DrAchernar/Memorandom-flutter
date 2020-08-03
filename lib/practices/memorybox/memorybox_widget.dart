@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class MemoryBoxWidget extends StatefulWidget {
@@ -13,7 +12,7 @@ class MemoryBoxWidget extends StatefulWidget {
 class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
     with SingleTickerProviderStateMixin {
   int _counter = 3, level = 0, clickCount = 0, lastBox;
-  bool starter = false, ready = false, _visibleMsg =false;
+  bool starter = false, ready = false, _visibleMsg = false;
   Timer tipsTimer;
   Random random = new Random();
   String msgText = '';
@@ -63,7 +62,7 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
     return InkResponse(
       enableFeedback: true,
       onTap: () {
-        if(ready && (lastBox == (8 * (row) + col))) {
+        if (ready && (lastBox == (8 * (row) + col))) {
           setState(() {
             tapColor[row][col] = Colors.white70;
           });
@@ -72,7 +71,9 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
           lastBox = clickedBoxes[clickCount];
           print(clickCount);
           print(clickedBoxes);
-        } else if (ready && clickCount<levelBoxCounts[level-1] && (!clickedBoxes.contains(8 * (row) + col))) {
+        } else if (ready &&
+            clickCount < levelBoxCounts[level - 1] &&
+            (!clickedBoxes.contains(8 * (row) + col))) {
           clickedBoxes[clickCount] = 8 * (row) + col;
           lastBox = clickedBoxes[clickCount];
           setState(() {
@@ -103,7 +104,7 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
     }
   }
 
-  void paintbox(maxTick){
+  void paintbox(maxTick) {
     int row, col;
     bool colored = false;
     tipsTimer = new Timer.periodic(Duration(milliseconds: 500), (timer) {
@@ -158,15 +159,13 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
     setState(() {
       level++;
     });
-    if(level>1) clearMod();
+    if (level > 1) clearMod();
     generatedBoxes = new List(levelBoxCounts[level - 1]);
     clickedBoxes = new List(levelBoxCounts[level - 1]);
     for (int i = 0; i < levelBoxCounts[level - 1]; i++) {
       generatedBoxes[i] = numberGenerator();
     }
     paintbox(12);
-    print(generatedBoxes);
-
   }
 
   @override
@@ -261,7 +260,7 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
                         //if wrong
                         generatedBoxes.sort();
                         clickedBoxes.sort();
-                        if(listEquals(generatedBoxes, clickedBoxes)) {
+                        if (listEquals(generatedBoxes, clickedBoxes)) {
                           setState(() {
                             msgText = 'Great! Keep on...';
                             _visibleMsg = true;

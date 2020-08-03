@@ -22,6 +22,11 @@ class _ColorsAndWordsState extends State<ColorsAndWords>
   AnimationController _controller;
   List<AnimationController> controller = new List(6);
   Timer timer1;
+  bool backEnable = true;
+
+  Future goBackDelay() async {
+    await Future.delayed(Duration(seconds: 3));
+  }
 
   void timerStarter() {
     CountdownTimer(Duration(seconds: 60), Duration(seconds: 1))
@@ -77,12 +82,14 @@ class _ColorsAndWordsState extends State<ColorsAndWords>
         builder: (context, child) {
           return Scaffold(
             appBar: GradientAppBar(
-              title: Text('Memorandom'),
+              title: Text('Memoraks'),
               leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
-                    _controller.stop();
-                    Navigator.of(context).pop();
+                    if (backEnable) {
+                      _controller.stop();
+                      Navigator.of(context).pop();
+                    }
                   }),
               automaticallyImplyLeading: false,
               gradient: LinearGradient(
@@ -97,12 +104,15 @@ class _ColorsAndWordsState extends State<ColorsAndWords>
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                         onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return ColorsAndWords(
-                              started: true,
-                            );
-                          }));
+                          if (backEnable) {
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                              return ColorsAndWords(
+                                started: true,
+                              );
+                            }));
+                          }
                         },
                       )
                     : SizedBox(),
@@ -129,7 +139,7 @@ class _ColorsAndWordsState extends State<ColorsAndWords>
                           child: Text(
                             'COLORS AND WORDS',
                             style:
-                                TextStyle(fontSize: 30, color: Colors.white30),
+                                TextStyle(fontSize: 20, color: Colors.white30),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -152,8 +162,12 @@ class _ColorsAndWordsState extends State<ColorsAndWords>
                                   fontSize: 26, fontWeight: FontWeight.bold),
                             ),
                             onPressed: () {
+                              backEnable = false;
                               timer1.cancel();
                               _controller.reset();
+                              goBackDelay().then((_) {
+                                backEnable = true;
+                              });
                               setState(() {
                                 widget.started = true;
                               });
