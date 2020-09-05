@@ -14,8 +14,11 @@ class Trainer extends StatefulWidget {
 }
 
 class _TrainerState extends State<Trainer> {
+
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: GradientAppBar(
         actions: <Widget>[
@@ -35,7 +38,7 @@ class _TrainerState extends State<Trainer> {
             end: Alignment.bottomCenter),
       ),
       body: Container(
-          height: MediaQuery.of(context).size.height,
+          height: height,
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -45,7 +48,7 @@ class _TrainerState extends State<Trainer> {
             children: <Widget>[
               Card(
                   child: Container(
-                height: MediaQuery.of(context).size.height / 4,
+                height: height / 4,
                 color: Colors.lightGreen[200],
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -64,7 +67,7 @@ class _TrainerState extends State<Trainer> {
                       subtitle: Text('Train your brain with numbers.'),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: height / 24,
                     ),
                     ButtonBar(
                       children: <Widget>[
@@ -100,7 +103,7 @@ class _TrainerState extends State<Trainer> {
               )),
               Card(
                 child: Container(
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: height / 4,
                   color: Colors.lightBlueAccent[100],
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -117,6 +120,9 @@ class _TrainerState extends State<Trainer> {
                               color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text('Test how careful you are.'),
+                      ),
+                      SizedBox(
+                        height: height / 24,
                       ),
                       ButtonBar(
                         children: <Widget>[
@@ -156,7 +162,7 @@ class _TrainerState extends State<Trainer> {
               ),
               Card(
                 child: Container(
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: height / 4,
                   color: Colors.deepPurpleAccent[200],
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -173,6 +179,9 @@ class _TrainerState extends State<Trainer> {
                               color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text('Try to remember colored boxes.'),
+                      ),
+                      SizedBox(
+                        height: height / 24,
                       ),
                       ButtonBar(
                         children: <Widget>[

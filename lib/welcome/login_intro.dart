@@ -115,7 +115,7 @@ class _LoginSessionState extends State<LoginSession> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text('Memorandom'),
+        title: Text('Memoraks'),
         automaticallyImplyLeading: false,
         gradient: LinearGradient(
             colors: [Colors.blue[300], Colors.green[200]],

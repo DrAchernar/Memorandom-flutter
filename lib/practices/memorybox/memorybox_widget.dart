@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:memorandom/pages/trainer.dart';
+import 'package:memorandom/practices/memorybox/memorybox.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class MemoryBoxWidget extends StatefulWidget {
@@ -12,7 +14,7 @@ class MemoryBoxWidget extends StatefulWidget {
 class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
     with SingleTickerProviderStateMixin {
   int _counter = 3, level = 0, clickCount = 0, lastBox;
-  bool starter = false, ready = false, _visibleMsg = false;
+  bool starter = false, ready = false, _visibleMsg = false, finished=false;
   Timer tipsTimer;
   Random random = new Random();
   String msgText = '';
@@ -69,8 +71,6 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
           clickCount--;
           clickedBoxes[clickedBoxes.indexOf(lastBox)] = null;
           lastBox = clickedBoxes[clickCount];
-          print(clickCount);
-          print(clickedBoxes);
         } else if (ready &&
             clickCount < levelBoxCounts[level - 1] &&
             (!clickedBoxes.contains(8 * (row) + col))) {
@@ -80,8 +80,6 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
             tapColor[row][col] = Colors.orange[300];
           });
           clickCount++;
-          print(clickCount);
-          print(clickedBoxes);
         }
       },
       child: SizedBox(
@@ -159,13 +157,24 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
     setState(() {
       level++;
     });
-    if (level > 1) clearMod();
-    generatedBoxes = new List(levelBoxCounts[level - 1]);
-    clickedBoxes = new List(levelBoxCounts[level - 1]);
-    for (int i = 0; i < levelBoxCounts[level - 1]; i++) {
-      generatedBoxes[i] = numberGenerator();
+    if(level > 10){
+      finished=true;
+    }else {
+      if (level > 1) clearMod();
+      generatedBoxes = new List(levelBoxCounts[level - 1]);
+      clickedBoxes = new List(levelBoxCounts[level - 1]);
+      for (int i = 0; i < levelBoxCounts[level - 1]; i++) {
+        generatedBoxes[i] = numberGenerator();
+      }
+      paintbox(12);
     }
-    paintbox(12);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    tipsTimer.cancel();
   }
 
   @override
@@ -199,6 +208,33 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+    AlertDialog finishedDialog = AlertDialog(
+      title: Text('Finished'),
+      content: Text('Would you like to play again?'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('No'),
+          onPressed: () {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return Trainer();
+                }));
+          },
+        ),
+        FlatButton(
+          child: Text('Yes'),
+          onPressed: () {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return MemoryBox(
+                    started: true,
+                  );
+                }));
+          },
+        )
+      ],
+    );
+
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -258,20 +294,33 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
                       textColor: Colors.blueGrey,
                       onPressed: () {
                         //if wrong
-                        generatedBoxes.sort();
-                        clickedBoxes.sort();
-                        if (listEquals(generatedBoxes, clickedBoxes)) {
-                          setState(() {
-                            msgText = 'Great! Keep on...';
-                            _visibleMsg = true;
+                        if(ready){
+                          generatedBoxes.sort();
+                          clickedBoxes.sort();
+                          if (listEquals(generatedBoxes, clickedBoxes)) {
+                            setState(() {
+                              msgText = 'Great! Keep on...';
+                              _visibleMsg = true;
+                            });
+                            levelGenerator();
+                          } else {
+                            setState(() {
+                              msgText = 'Nice try. But not enough...';
+                              _visibleMsg = true;
+                            });
+                            levelGenerator();
+                          }
+                          ready = false;
+                        }
+                        if(finished) {
+                          initData().then((_) {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return finishedDialog;
+                                }
+                            );
                           });
-                          levelGenerator();
-                        } else {
-                          setState(() {
-                            msgText = 'Nice try. But not enough...';
-                            _visibleMsg = true;
-                          });
-                          levelGenerator();
                         }
                       },
                       icon: Icon(Icons.check),
@@ -289,7 +338,9 @@ class _MemoryBoxWidgetState extends State<MemoryBoxWidget>
                       color: Colors.white,
                       textColor: Colors.blueGrey,
                       onPressed: () {
-                        clearMod();
+                        if(ready){
+                          clearMod();
+                        }
                       },
                       icon: Icon(Icons.clear),
                       label: Text(

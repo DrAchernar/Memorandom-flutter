@@ -45,14 +45,22 @@ class _MemoryBoxState extends State<MemoryBox> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    if(widget.started) {
+      setState(() {
+        backEnable = false;
+      });
+      goBackDelay().then((_) {
+        backEnable = true;
+      });
+    }
     colorizeBox();
     super.initState();
   }
 
   @override
   dispose() {
-    super.dispose();
     timerColorize.cancel();
+    super.dispose();
   }
 
   @override
@@ -83,6 +91,7 @@ class _MemoryBoxState extends State<MemoryBox> with TickerProviderStateMixin {
                   ),
                   onPressed: () {
                     if (backEnable) {
+                      timerColorize.cancel();
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (BuildContext context) {
                         return MemoryBox(

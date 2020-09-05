@@ -13,14 +13,17 @@ class Sudoku extends StatefulWidget {
 
 class _SudokuState extends State<Sudoku> {
   int pRow, pCol, uRow, uCol;
-  bool cleanable = false;
   var board, solve;
   String checkBoard;
-  bool isLoading = true;
+  bool isLoading = true, cleanable = false;
   var boardCell = new List.generate(9, (_) => new List(9));
   var tapColor = new List.generate(9, (_) => new List(9));
   List<dynamic> disabledCell = new List();
   List<dynamic> enableNums = new List();
+
+  Future requestDelay() async {
+    await Future.delayed(Duration(seconds: 7));
+  }
 
   @override
   void initState() {
@@ -75,44 +78,44 @@ class _SudokuState extends State<Sudoku> {
   }
 
   void getBoard() async {
-    disabledCell.clear();
-    enableNums = [];
-    var responseBoard, responseSolver;
-    if (pRow != null) tapColor[pRow][pCol] = Colors.grey[100];
-    try {
-      responseBoard = await http
-          .get("https://agarithm.com/sudoku/new")
-          .timeout(Duration(seconds: 7));
-      if (responseBoard.statusCode == 200 && this.mounted) {
-        board = responseBoard.body;
-        responseSolver =
-            await http.get("https://agarithm.com/sudoku/solve/$board");
-        if (responseSolver.statusCode == 200) {
-          solve = responseSolver.body;
-        }
-        for (int i = 0; i < 9; i++) {
-          for (int j = 0; j < 9; j++) {
-            setState(() {
-              if (board[i * 9 + j] == '.') {
-                boardCell[i][j] = '';
-              } else {
-                disabledCell.add(i * 9 + j);
-                boardCell[i][j] = (board[i * 9 + j]).toString();
-              }
-            });
+      disabledCell.clear();
+      enableNums = [];
+      var responseBoard, responseSolver;
+      if (pRow != null) tapColor[pRow][pCol] = Colors.grey[100];
+      try {
+        responseBoard = await http
+            .get("https://agarithm.com/sudoku/new")
+            .timeout(Duration(seconds: 7));
+        if (responseBoard.statusCode == 200 && this.mounted) {
+          board = responseBoard.body;
+          responseSolver =
+          await http.get("https://agarithm.com/sudoku/solve/$board");
+          if (responseSolver.statusCode == 200) {
+            solve = responseSolver.body;
           }
+          for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+              setState(() {
+                if (board[i * 9 + j] == '.') {
+                  boardCell[i][j] = '';
+                } else {
+                  disabledCell.add(i * 9 + j);
+                  boardCell[i][j] = (board[i * 9 + j]).toString();
+                }
+              });
+            }
+          }
+          setState(() {
+            isLoading = false;
+          });
         }
-        setState(() {
-          isLoading = false;
-        });
+      } on TimeoutException catch (e) {
+        errorDialog();
+      } on SocketException catch (e) {
+        errorDialog();
+      } on Error catch (e) {
+        errorDialog();
       }
-    } on TimeoutException catch (e) {
-      errorDialog();
-    } on SocketException catch (e) {
-      errorDialog();
-    } on Error catch (e) {
-      errorDialog();
-    }
   }
 
   List<TableRow> _getTableRows() {

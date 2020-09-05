@@ -48,6 +48,14 @@ class _ColorsAndWordsState extends State<ColorsAndWords>
   void initState() {
     // TODO: implement initState
     super.initState();
+    if(widget.started) {
+      setState(() {
+        backEnable = false;
+      });
+      goBackDelay().then((_) {
+        backEnable = true;
+      });
+    }
     for (int i = 0; i < 6; i++) {
       controller[i] =
           AnimationController(vsync: this, duration: Duration(seconds: 5));

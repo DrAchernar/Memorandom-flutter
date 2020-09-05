@@ -48,7 +48,7 @@ class _InfoState extends State<Info> {
                     child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: new Text(
-                      "Created for practicing memory and mind. You can play 3 different games to improve memory. Sudoku, Color & Words, Memorybox are waiting for you... \n",
+                      "Created for practicing memory and mind. You can play 3 different games to improve memory. Sudoku, Colors & Words, Memorybox are waiting for you... \n",
                       style: TextStyle(fontSize: 17.0, color: Colors.white)),
                 ) //
                     ),
