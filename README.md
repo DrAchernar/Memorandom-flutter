@@ -12,7 +12,7 @@ I captured this example on simulator. You can look screenshot folder or watch [t
  
 ## For Sudoku Service 
 
-I use  for sudoku service [this](https://agarithm.com/sudoku/) . Its an example for usage.
+I use  for sudoku [this](https://agarithm.com/sudoku/) service. Its an example for usage.
 Important: You need to create your own sudoku service or buy from providers.
 
 You can change and try different ideas on it. Good luck...
